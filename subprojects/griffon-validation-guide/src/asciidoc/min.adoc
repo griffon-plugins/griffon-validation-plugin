@@ -1,0 +1,32 @@
+
+[[_constraints_min]]
+= Min
+
+.Purpose
+Ensures a value does not fall below a minimum value.
+
+[source,java]
+.Java
+----
+.e("age",   list(min(new Date())))
+.e("price", list(min(0F)))
+----
+
+[source,groovy]
+.Groovy
+----
+age   min: new Date()
+price min: 0F
+----
+
+.Description
+
+Sets the minimum value of a class that implements `java.lang.Comparable`. The type of the value must be the same as the property.
+
+Note that constraints are only evaluated once which may be relevant for a constraint that relies on a value like an instance of `java.util.Date`.
+
+.Messages
+
+[horizontal]
+Error Codes:: `className.propertyName.min.notmet`, `default.invalid.min.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] is less than minimum value [{3}]

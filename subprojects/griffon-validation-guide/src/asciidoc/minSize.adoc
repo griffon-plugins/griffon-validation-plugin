@@ -1,0 +1,26 @@
+
+[[_constraints_minsize]]
+= MinSize
+
+.Purpose
+Ensures a value's size does not fall below a minimum value.
+
+[source,java]
+.Java
+----
+.e("children", list(minSize(25)))
+----
+
+[source,groovy]
+.Groovy
+----
+children minSize: 25
+----
+
+.Description
+Sets the minimum size of a collection or number property.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.minSize.notmet`, `default.invalid.min.size.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] is less than the minimum size of [{3}]

@@ -1,0 +1,27 @@
+
+[[_constraints_creditcard]]
+= CreditCard
+
+.Purpose
+Validates that a String value is a valid credit card number.
+
+[source,java]
+.Java
+----
+.e("cardNumber", list(creditCard(true)))
+----
+
+[source,groovy]
+.Groovy
+----
+cardNumber(creditCard: true)
+----
+
+.Description
+
+Set to `true` if a string must be a credit card number. Internally uses the `org.apache.commons.validator.CreditCardValidator` class.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.creditCard.invalid`, `default.invalid.creditCard.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] is not a valid credit card number

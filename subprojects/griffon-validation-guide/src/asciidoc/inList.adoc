@@ -1,0 +1,27 @@
+
+[[_constraints_inlist]]
+= InList
+
+.Purpose
+Validates that a value is within a range or collection of constrained values.
+
+[source,java]
+.Java
+----
+.e("name", list(inList(Arrays.asList("Joe", "Fred", "Bob"))))
+----
+
+[source,groovy]
+.Groovy
+----
+name inList: ["Joe", "Fred", "Bob"]
+----
+
+.Description
+
+Constrains a value so that it must be contained within the given list.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.not.inList`, `default.not.inlist.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] is not contained within the list [{3}]

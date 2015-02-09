@@ -1,0 +1,27 @@
+
+[[_constraints_blank]]
+= Blank
+
+.Purpose
+Validates that a String value is not blank.
+
+[source,java]
+.Java
+----
+.e("login", list(blank(false)))
+----
+
+[source,groovy]
+.Groovy
+----
+login(blank: false)
+----
+
+.Description
+
+Set to `false` if a string value cannot be blank.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.blank`, `default.blank.message`
+Template:: Property [{0}] of class [{1}] cannot be blank

@@ -1,0 +1,31 @@
+
+[[_constraints_max]]
+= Max
+
+.Purpose
+Ensures a value does not exceed a maximum value.
+
+[source,java]
+.Java
+----
+.e("age",   list(max(new Date())))
+.e("price", list(max(999F)))
+----
+
+[source,groovy]
+.Groovy
+----
+age   max: new Date()
+price max: 999F
+----
+
+.Description
+
+Sets the maximum value of a class that implements `java.lang.Comparable`. The type of the value must be the same as the property.
+
+Note that constraints are only evaluated once which may be relevant for a constraint that relies on a value like an instance of `java.util.Date`.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.max.exceeded`, `default.invalid.max.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] exceeds maximum value [{3}]

@@ -1,0 +1,23 @@
+
+[[_constraints_notequal]]
+= NotEqual
+
+.Purpose
+Ensures that a property is not equal a specified value
+
+[source,java]
+.Java
+----
+.e("username", list(notEqual("Bob")))
+----
+
+[source,groovy]
+.Groovy
+----
+username notEqual: "Bob"
+----
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.notEqual`, `default.not.equal.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] cannot equal [{3}]

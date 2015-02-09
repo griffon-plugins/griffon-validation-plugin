@@ -1,0 +1,27 @@
+
+[[_constraints_date]]
+= Date
+
+.Purpose
+Validates that a String value can be transformed to a `java.util.Date` given a specific format.
+
+[source,java]
+.Java
+----
+.e("startDate", list(date("yyyy-MM-dd")))
+----
+
+[source,groovy]
+.Groovy
+----
+startDate(date: 'yyyy-MM-dd')
+----
+
+.Description
+
+Set to a format that cna be parsed by `java.text.SimpleDateFormat`.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.not.date.invalid`, `default.not.date.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] is not a valid date given the format [{3}]

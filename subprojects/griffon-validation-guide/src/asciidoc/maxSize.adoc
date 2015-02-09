@@ -1,0 +1,26 @@
+
+[[_constraints_maxsize]]
+= MaxSize
+
+.Purpose
+Ensures a value's size does not exceed a maximum value.
+
+[source,java]
+.Java
+----
+.e("children", list(maxSize(25)))
+----
+
+[source,groovy]
+.Groovy
+----
+children maxSize: 25
+----
+
+.Description
+Sets the maximum size of a collection or number property.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.maxSize.exceeded`, `default.invalid.max.size.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] exceeds maximum value [{3}]

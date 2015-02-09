@@ -1,0 +1,27 @@
+
+[[_constraints_nullable]]
+= Nullable
+
+.Purpose
+Allows a property to be set to `null`. By default `null` values for properties are not allowed.
+
+[source,java]
+.Java
+----
+.e("age", list(nullable(false)))
+----
+
+[source,groovy]
+.Groovy
+----
+age(nullable: false)
+----
+
+.Description
+
+Set to `true` if the property allows null values.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.nullable`, `default.null.message`
+Template:: Property [{0}] of class [{1}] must not be null

@@ -1,0 +1,27 @@
+
+[[_constraints_size]]
+= Size
+
+.Purpose
+Uses a range to restrict the size of a collection, a number, or the length of a String.
+
+[source,java]
+.Java
+----
+.e("children", list(size(5,15)))
+----
+
+[source,groovy]
+.Groovy
+----
+children size: 5..15
+----
+
+.Description
+
+Sets the size of a collection, a number property, or String length.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.size.toosmall`, `className.propertyName.size.toobig`, `default.invalid.size.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] does not fall within the valid size range from [{3}] to [{4}]

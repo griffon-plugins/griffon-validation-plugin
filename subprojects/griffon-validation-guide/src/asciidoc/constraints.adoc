@@ -1,0 +1,103 @@
+
+[[_constraints]]
+= Constraints
+
+The following table summarizes all currently supported constraints
+
+[cols="3*",options="header"]
+|===
+| Constraint
+| Definition
+| Example
+
+| <<_constraints_blank,blank>>
+| Validates that a String value is not blank
+| `login(blank: false)`
+
+| <<_constraints_creditCard,creditCard>>
+| Validates that a String value is a valid credit card number
+| `cardNumber(creditCard: true)`
+
+| <<_constraints_date,date>>
+| Validates that a String value follows a Date format
+| `startDate(date: "yyyy-MM-dd")`
+
+| <<_constraints_email,email>>
+| Validates that a String value is a valid email address.
+| `homeEmail(email: true)`
+
+| <<_constraints_inList,inList>>
+| Validates that a value is within a range or collection of constrained values.
+| `name(inList: ["Joe", "Fred", "Bob"])`
+
+| <<_constraints_matches,matches>>
+| Validates that a String value matches a given regular expression.
+| `login(matches: "[a-zA-Z]+")`
+
+| <<_constraints_max,max>>
+| Validates that a value does not exceed the given maximum value.
+| `age(max: new Date()) price(max: 999F)`
+
+| <<_constraints_maxSize,maxSize>>
+| Validates that a value's size does not exceed the given maximum value.
+| `children(maxSize: 25)`
+
+| <<_constraints_min,min>>
+| Validates that a value does not fall below the given minimum value.
+| `age(min: new Date()) price(min: 0F)`
+
+| <<_constraints_minSize,minSize>>
+| Validates that a value's size does not fall below the given minimum value.
+| `children(minSize: 25)`
+
+| <<_constraints_notEqual,notEqual>>
+| Validates that that a property is not equal to the specified value
+| `login(notEqual: "Bob")`
+
+| <<_constraints_nullable,nullable>>
+| Allows a property to be set to null - defaults to false.
+| `age(nullable: true)`
+
+| <<_constraints_range,range>>
+| Uses a Groovy range to ensure that a property's value occurs within a specified range
+| `age(range: 18..65)`
+
+| <<_constraints_scale,scale>>
+| Set to the desired scale for floating point numbers (i.e., the number of digits to the right of the decimal point).
+| `salary(scale: 2)`
+
+| <<_constraints_size,size>>
+| Uses a Groovy range to restrict the size of a collection or number or the length of a String.
+| `children(size: 5..15)`
+
+| <<_constraints_url,url>>
+| Validates that a String value is a valid URL.
+| `homePage(url: true)`
+
+| <<_constraints_validator,validator>>
+| Adds custom validation to a field.
+| See documentation
+
+|===
+
+:leveloffset: 2
+
+include::blank.adoc[]
+include::creditCard.adoc[]
+include::date.adoc[]
+include::email.adoc[]
+include::inList.adoc[]
+include::matches.adoc[]
+include::max.adoc[]
+include::maxSize.adoc[]
+include::min.adoc[]
+include::minsize.adoc[]
+include::notEqual.adoc[]
+include::nullable.adoc[]
+include::range.adoc[]
+include::scale.adoc[]
+include::size.adoc[]
+include::url.adoc[]
+include::validator.adoc[]
+
+:leveloffset: 1

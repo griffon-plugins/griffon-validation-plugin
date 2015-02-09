@@ -1,0 +1,28 @@
+
+[[_constraints_range]]
+= Range
+
+.Purpose
+Uses a range to ensure that a property's value is within a specified range.
+
+[source,java]
+.Java
+----
+.e("age", list(range(18, 65)))
+----
+
+[source,groovy]
+.Groovy
+----
+age range: 18..65
+----
+
+.Description
+
+Set to a range which can contain numbers in the form of an IntRange, CharRange, LongRange, DoubleRange, FloatRange or
+EnumRange, depending on the argument types.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.range.toosmall`, `className.propertyName.range.toobig`, `default.invalid.range.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] does not fall within the valid range from [{3}] to [{4}]

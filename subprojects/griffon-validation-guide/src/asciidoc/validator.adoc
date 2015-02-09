@@ -1,0 +1,47 @@
+
+[[_constraints_validator]]
+= Validator
+
+.Purpose
+Adds custom validation to a field.
+
+[source,java,options="nowrap"]
+.Java
+----
+.e("even", list(validator( (Number v) -> {val % 2 ? "" : "validator.invalid"} )))
+.e("password2", list(validator( (Number v, Bean b) -> areEqual(b.password, val) ? "" : "passwords.do.not.match" )))
+----
+
+[source,groovy,options="nowrap"]
+.Groovy
+----
+even(validator{ val -> val % 2 ? '' : 'validator.invalid' })
+password2(validator{ v, obj -> obj.password == val ? '' : 'passwords.do.not.match' })
+----
+
+.Description
+
+A custom validator is implemented by a Closure that takes up to two parameters. If the Closure accepts zero or
+one parameter, the parameter value will be the one being validated ("it" in the case of a zero-parameter Closure).
+If it accepts two parameters the first is the value and the second is the class instance being validated.
+This is useful when your validation needs access to other fields, for example when checking that two entered
+passwords are the same.
+
+The closure can return:
+
+ * null or empty String to indicate that the value is valid.
+ * a String to indicate the error code to append to the "classname.propertyName." String used to resolve the
+   error message. If a field-specific message cannot be resolved, the error code itself will be resolved allowing
+   for global error messages.
+
+.Messages
+For property validator
+[horizontal]
+Error Codes:: `className.propertyName.validator.invalid`, `default.invalid.property.validator.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] is invalid
+
+For Object validator
+[horizontal]
+Error Codes:: `className.propertyName.validator.invalid`, `default.invalid.object.validator.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] is invalid
+

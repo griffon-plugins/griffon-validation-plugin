@@ -1,0 +1,27 @@
+
+[[_constraints_matches]]
+= Matches
+
+.Purpose
+Validates that a String value matches a given regular expression.
+
+[source,java]
+.Java
+----
+.e("login", list(matches("[a-zA-Z]+")))
+----
+
+[source,groovy]
+.Groovy
+----
+login matches: "[a-zA-Z]+"
+----
+
+.Description
+
+Applies a regular expression against a string value.
+
+.Messages
+[horizontal]
+Error Codes:: `className.propertyName.matches.invalid`, `default.doesnt.match.message`
+Template:: Property [{0}] of class [{1}] with value [{2}] does not match the required pattern [{3}]
