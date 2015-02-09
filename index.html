@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.2">
+<meta name="author" content="Andres Almiray">
+<title>Griffon Validation Plugin</title>
+<link rel="stylesheet" href="./css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>Griffon Validation Plugin</h1>
+<div class="details">
+<span id="author" class="author">Andres Almiray</span><br>
+<span id="revnumber">version 1.0.0</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_introduction">1. Introduction</a>
+<ul class="sectlevel2">
+<li><a href="#_declaring_constraints">1.1. Declaring Constraints</a></li>
+<li><a href="#_validating_basics">1.2. Validating Basics</a>
+<ul class="sectlevel3">
+<li><a href="#_java_dsl">1.2.1. Java DSL</a></li>
+<li><a href="#_groovy_dsl">1.2.2. Groovy DSL</a></li>
+</ul>
+</li>
+<li><a href="#_validation_and_internationalization">1.3. Validation and Internationalization</a></li>
+<li><a href="#_the_validatable_ast_transformation">1.4. The @Validatable AST Transformation</a></li>
+</ul>
+</li>
+<li><a href="#_constraints">2. Constraints</a>
+<ul class="sectlevel2">
+<li><a href="#_constraints_blank">2.1. Blank</a></li>
+<li><a href="#_constraints_creditcard">2.2. CreditCard</a></li>
+<li><a href="#_constraints_date">2.3. Date</a></li>
+<li><a href="#_constraints_email">2.4. Email</a></li>
+<li><a href="#_constraints_inlist">2.5. InList</a></li>
+<li><a href="#_constraints_matches">2.6. Matches</a></li>
+<li><a href="#_constraints_max">2.7. Max</a></li>
+<li><a href="#_constraints_maxsize">2.8. MaxSize</a></li>
+<li><a href="#_constraints_min">2.9. Min</a></li>
+<li><a href="#_constraints_minsize">2.10. MinSize</a></li>
+<li><a href="#_constraints_notequal">2.11. NotEqual</a></li>
+<li><a href="#_constraints_nullable">2.12. Nullable</a></li>
+<li><a href="#_constraints_range">2.13. Range</a></li>
+<li><a href="#_constraints_scale">2.14. Scale</a></li>
+<li><a href="#_constraints_size">2.15. Size</a></li>
+<li><a href="#_constraints_url">2.16. Url</a></li>
+<li><a href="#_constraints_validator">2.17. Validator</a></li>
+</ul>
+</li>
+<li><a href="#_configuration">3. Build Configuration</a>
+<ul class="sectlevel2">
+<li><a href="#_gradle">3.1. Gradle</a>
+<ul class="sectlevel3">
+<li><a href="#_automatic">3.1.1. Automatic</a></li>
+<li><a href="#_manual">3.1.2. Manual</a></li>
+</ul>
+</li>
+<li><a href="#_maven">3.2. Maven</a></li>
+</ul>
+</li>
+<li><a href="#_modules">4. Modules</a>
+<ul class="sectlevel2">
+<li><a href="#_validation">4.1. Validation</a></li>
+<li><a href="#_groovy">4.2. Groovy</a></li>
+</ul>
+</li>
+<li><a href="#_links">5. Links</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction"><a class="anchor" href="#_introduction"></a>1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The validation plugin enables Java and Groovy friendly DSLs for evaluating property constraints on POJO/POGO classes.
+The validation DSL is heavily inspired by <a href="http://grails.github.io/grails-doc/latest/guide/GORM.html" target="_blank">GORM</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="_declaring_constraints"><a class="anchor" href="#_declaring_constraints"></a>1.1. Declaring Constraints</h3>
+<div class="paragraph">
+<p>A validateable POJO/POGO must implement the <code><a href="api/griffon/plugins/validation/Validateable.html" target="_blank">Validateable</a></code> interface and define a conventional static property
+that contains constraints definitions. The following example shows a <code>Credentials</code> POJO with two properties
+and their constraints</p>
+</div>
+<div class="listingblock">
+<div class="title">giffon.plugins.validation.Credentials.java</div>
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+<strong>10</strong>
+11
+12
+13
+14
+15
+16
+17
+18
+19
+<strong>20</strong>
+21
+22
+23
+24
+25
+26
+27
+28
+29
+<strong>30</strong>
+31
+32
+33
+34
+35
+36
+37
+</pre></td>
+  <td class="code"><pre><span class="keyword">package</span> <span class="namespace">griffon.plugins.validation</span>;
+
+<span class="keyword">import</span> <span class="include">griffon.plugins.validation.constraints.ConstraintDef</span>;
+<span class="keyword">import</span> <span class="include">org.codehaus.griffon.runtime.validation.AbstractValidateable</span>;
+
+<span class="keyword">import</span> <span class="include">java.util.List</span>;
+<span class="keyword">import</span> <span class="include">java.util.Map</span>;
+
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">griffon.plugins.validation.constraints.Constraints.blank</span>;
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">griffon.plugins.validation.constraints.Constraints.list</span>;
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">griffon.plugins.validation.constraints.Constraints.map</span>;
+<span class="keyword">import</span> <span class="include">static</span> <span class="include">griffon.plugins.validation.constraints.Constraints.size</span>;
+
+<span class="directive">public</span> <span class="type">class</span> <span class="class">Credentials</span> <span class="directive">extends</span> AbstractValidateable {
+    <span class="directive">private</span> <span class="predefined-type">String</span> username;
+    <span class="directive">private</span> <span class="predefined-type">String</span> password;
+
+    <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> <span class="predefined-type">Map</span>&lt;<span class="predefined-type">String</span>, <span class="predefined-type">List</span>&lt;ConstraintDef&gt;&gt; CONSTRAINTS = map()
+        .e(<span class="string"><span class="delimiter">&quot;</span><span class="content">username</span><span class="delimiter">&quot;</span></span>, list(blank(<span class="predefined-constant">false</span>), size(<span class="integer">3</span>, <span class="integer">10</span>)))
+        .e(<span class="string"><span class="delimiter">&quot;</span><span class="content">password</span><span class="delimiter">&quot;</span></span>, list(blank(<span class="predefined-constant">false</span>), size(<span class="integer">8</span>, <span class="integer">10</span>)));
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getUsername() {
+        <span class="keyword">return</span> username;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setUsername(<span class="predefined-type">String</span> username) {
+        <span class="local-variable">this</span>.username = username;
+    }
+
+    <span class="directive">public</span> <span class="predefined-type">String</span> getPassword() {
+        <span class="keyword">return</span> password;
+    }
+
+    <span class="directive">public</span> <span class="type">void</span> setPassword(<span class="predefined-type">String</span> password) {
+        <span class="local-variable">this</span>.password = password;
+    }
+}</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s the Groovy version. Notice that constraints are defined using a block instead of a list</p>
+</div>
+<div class="listingblock">
+<div class="title">giffon.plugins.validation.GroovyCredentials.groovy</div>
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+<strong>10</strong>
+11
+12
+13
+</pre></td>
+  <td class="code"><pre><span class="keyword">package</span> griffon.plugins.validation
+
+<span class="keyword">import</span> <span class="include">org.codehaus.griffon.runtime.validation.AbstractValidateable</span>
+
+<span class="type">class</span> <span class="class">GroovyCredentials</span> <span class="directive">extends</span> AbstractValidateable {
+    <span class="predefined-type">String</span> username
+    <span class="predefined-type">String</span> password
+
+    <span class="directive">static</span> <span class="directive">final</span> CONSTRAINTS = {
+        username(<span class="key">blank</span>: <span class="predefined-constant">false</span>, <span class="key">size</span>: <span class="integer">3</span>..<span class="integer">10</span>)
+        password(<span class="key">blank</span>: <span class="predefined-constant">false</span>, <span class="key">size</span>: <span class="integer">8</span>..<span class="integer">10</span>)
+    }
+}</pre></td>
+</tr></table></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_validating_basics"><a class="anchor" href="#_validating_basics"></a>1.2. Validating Basics</h3>
+<div class="paragraph">
+<p>Call the <code>validate</code> method to validate a validateable class instance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">User user = application.injector.getInstance(User)
+<span class="comment">// TODO: update user properties</span>
+<span class="keyword">if</span> (user.validate()) {
+     <span class="comment">// do something with user</span>
+} <span class="keyword">else</span> {
+    user.errors.allErrors.each { println <span class="local-variable">it</span> }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>errors</code> property on validateable classes is an instance of the <code><a href="api/griffon/plugins/validation/Errors.html" target="_blank">Errors</a></code> interface. The <code><a href="api/griffon/plugins/validation/Errors.html" target="_blank">Errors</a></code>
+interface provides methods to navigate the validation errors and also retrieve the original values.</p>
+</div>
+<div class="sect3">
+<h4 id="_java_dsl"><a class="anchor" href="#_java_dsl"></a>1.2.1. Java DSL</h4>
+<div class="paragraph">
+<p>POJOs must define their constraints as a <code>Map</code> of nested <code><a href="api/griffon/plugins/validation/constraints/ConstraintDef.html" target="_blank">ConstraintDef</a></code> instances. The <code><a href="api/griffon/plugins/validation/constraints/Constraints.html" target="_blank">Constraints</a></code> class
+provides helper methods that can be statically imported; these methods make it very easy to create such nested structure.</p>
+</div>
+<div class="paragraph">
+<p>The following conventions must be followed:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the class must have a <code>public static final Map&lt;String, List&lt;ConstraintDef&gt;&gt; CONSTRAINTS</code> field.</p>
+</li>
+<li>
+<p>property names are used as keys.</p>
+</li>
+<li>
+<p>a list of <code><a href="api/griffon/plugins/validation/constraints/ConstraintDef.html" target="_blank">ConstraintDef</a></code> is set as entry value.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Constraints will be evaluated in the order they were defined, top to bottom, left to right.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_groovy_dsl"><a class="anchor" href="#_groovy_dsl"></a>1.2.2. Groovy DSL</h4>
+<div class="paragraph">
+<p>POGOs must define their constraints as a block. Each method inside this block is treated as a constraint definition.</p>
+</div>
+<div class="paragraph">
+<p>The following conventions must be followed:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the class must have a <code>static final CONSTRAINTS</code> closure field.</p>
+</li>
+<li>
+<p>method names must match property names to be validated.</p>
+</li>
+<li>
+<p>method arguments match constraint names by key.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Constraints will be evaluated in the order they were defined, top to bottom, left to right.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_validation_and_internationalization"><a class="anchor" href="#_validation_and_internationalization"></a>1.3. Validation and Internationalization</h3>
+<div class="paragraph">
+<p>An important thing to note about errors is that error messages are not hard coded anywhere. Applications resolve
+messages from the <strong>i18n</strong> message bundles.</p>
+</div>
+<div class="paragraph">
+<p>The codes themselves are dictated by a convention. For example consider these constraintss:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy"><span class="keyword">package</span> com.acme
+
+<span class="type">class</span> <span class="class">User</span> <span class="directive">extends</span> AbstractValidateable {
+    <span class="directive">static</span> <span class="directive">final</span> CONSTRAINTS= {
+         login <span class="key">size</span>: <span class="integer">5</span>..<span class="integer">15</span>, <span class="key">blank</span>: <span class="predefined-constant">false</span>
+         password <span class="key">size</span>: <span class="integer">5</span>..<span class="integer">15</span>, <span class="key">blank</span>: <span class="predefined-constant">false</span>
+         email <span class="key">email</span>: <span class="predefined-constant">true</span>, <span class="key">blank</span>: <span class="predefined-constant">false</span>
+         age <span class="key">min</span>: <span class="integer">18</span>
+    }
+
+    <span class="predefined-type">String</span> login
+    <span class="predefined-type">String</span> password
+    <span class="predefined-type">String</span> email
+    <span class="type">int</span> age
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If a constraint is violated the plugin will, by convention, look for a message code of the form</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[Class Name].[Property Name].[Constraint Code]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the case of the <code>blank</code> constraint this would be
+`user.login.blank so you would need a message such as the following in your `griffon-app/i18n/messages.properties file:</p>
+</div>
+<div class="listingblock">
+<div class="title">griffon-app/i18n/messages.properties</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">user.login.blank=Your login name must be specified!</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The class name is looked for both with and without a package, with the packaged version taking precedence.
+So for example, <code>com.acme.myapp.User.login.blank</code> will be used before <code>user.login.blank</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_validatable_ast_transformation"><a class="anchor" href="#_the_validatable_ast_transformation"></a>1.4. The @Validatable AST Transformation</h3>
+<div class="paragraph">
+<p>You can apply the <code><a href="api/griffon/transform/Validateable.html" target="_blank">@griffon.transform.Validateable</a></code> AST transformation on any class. This injects the behavior of <code><a href="api/griffon/plugins/validation/Validateable.html" target="_blank">Validateable</a></code>
+into said class. The previous GroovyCredentials shown earlier can be rewritten as follows</p>
+</div>
+<div class="listingblock">
+<div class="title">griffon.plugins.validation.GroovyCredentials.groovy</div>
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy"><span class="keyword">package</span> griffon.plugins.validation
+
+<span class="annotation">@griffon</span>.transform.Validateable
+<span class="type">class</span> <span class="class">GroovyCredentials</span> {
+    <span class="predefined-type">String</span> username
+    <span class="predefined-type">String</span> password
+
+    <span class="directive">static</span> <span class="directive">final</span> CONSTRAINTS = {
+        username(<span class="key">blank</span>: <span class="predefined-constant">false</span>, <span class="key">size</span>: <span class="integer">3</span>..<span class="integer">10</span>)
+        password(<span class="key">blank</span>: <span class="predefined-constant">false</span>, <span class="key">size</span>: <span class="integer">8</span>..<span class="integer">10</span>)
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_constraints"><a class="anchor" href="#_constraints"></a>2. Constraints</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following table summarizes all currently supported constraints</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33%;">
+<col style="width: 33%;">
+<col style="width: 33%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Constraint</th>
+<th class="tableblock halign-left valign-top">Definition</th>
+<th class="tableblock halign-left valign-top">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_blank">blank</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a String value is not blank</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>login(blank: false)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_creditCard">creditCard</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a String value is a valid credit card number</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cardNumber(creditCard: true)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_date">date</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a String value follows a Date format</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>startDate(date: "yyyy-MM-dd")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_email">email</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a String value is a valid email address.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>homeEmail(email: true)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_inList">inList</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a value is within a range or collection of constrained values.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name(inList: ["Joe", "Fred", "Bob"])</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_matches">matches</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a String value matches a given regular expression.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>login(matches: "[a-zA-Z]+")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_max">max</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a value does not exceed the given maximum value.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>age(max: new Date()) price(max: 999F)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_maxSize">maxSize</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a value&#8217;s size does not exceed the given maximum value.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>children(maxSize: 25)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_min">min</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a value does not fall below the given minimum value.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>age(min: new Date()) price(min: 0F)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_minSize">minSize</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a value&#8217;s size does not fall below the given minimum value.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>children(minSize: 25)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_notEqual">notEqual</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that that a property is not equal to the specified value</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>login(notEqual: "Bob")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_nullable">nullable</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allows a property to be set to null - defaults to false.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>age(nullable: true)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_range">range</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Uses a Groovy range to ensure that a property&#8217;s value occurs within a specified range</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>age(range: 18..65)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_scale">scale</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set to the desired scale for floating point numbers (i.e., the number of digits to the right of the decimal point).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>salary(scale: 2)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_size">size</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Uses a Groovy range to restrict the size of a collection or number or the length of a String.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>children(size: 5..15)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_url">url</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates that a String value is a valid URL.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>homePage(url: true)</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_constraints_validator">validator</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Adds custom validation to a field.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">See documentation</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_constraints_blank"><a class="anchor" href="#_constraints_blank"></a>2.1. Blank</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Validates that a String value is not blank.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">login</span><span class="delimiter">&quot;</span></span>, list(blank(<span class="predefined-constant">false</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">login(<span class="key">blank</span>: <span class="predefined-constant">false</span>)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Set to <code>false</code> if a string value cannot be blank.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.blank</code>, <code>default.blank.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] cannot be blank</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_creditcard"><a class="anchor" href="#_constraints_creditcard"></a>2.2. CreditCard</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Validates that a String value is a valid credit card number.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">cardNumber</span><span class="delimiter">&quot;</span></span>, list(creditCard(<span class="predefined-constant">true</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">cardNumber(<span class="key">creditCard</span>: <span class="predefined-constant">true</span>)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Set to <code>true</code> if a string must be a credit card number. Internally uses the <code>org.apache.commons.validator.CreditCardValidator</code> class.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.creditCard.invalid</code>, <code>default.invalid.creditCard.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] is not a valid credit card number</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_date"><a class="anchor" href="#_constraints_date"></a>2.3. Date</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Validates that a String value can be transformed to a <code>java.util.Date</code> given a specific format.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">startDate</span><span class="delimiter">&quot;</span></span>, list(date(<span class="string"><span class="delimiter">&quot;</span><span class="content">yyyy-MM-dd</span><span class="delimiter">&quot;</span></span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">startDate(<span class="key">date</span>: <span class="string"><span class="delimiter">'</span><span class="content">yyyy-MM-dd</span><span class="delimiter">'</span></span>)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Set to a format that cna be parsed by <code>java.text.SimpleDateFormat</code>.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.not.date.invalid</code>, <code>default.not.date.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] is not a valid date given the format [{3}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_email"><a class="anchor" href="#_constraints_email"></a>2.4. Email</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Validates that a String value is a valid email address.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">homeEmail</span><span class="delimiter">&quot;</span></span>, list(email(<span class="predefined-constant">true</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">homeEmail(<span class="key">email</span>: <span class="predefined-constant">true</span>)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Set to <code>true</code> if a string must be an email address. Internally uses the <code>org.apache.commons.validator.EmailValidator</code> class.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.email.invalid</code>, <code>default.invalid.email.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] is not a valid e-mail address</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_inlist"><a class="anchor" href="#_constraints_inlist"></a>2.5. InList</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Validates that a value is within a range or collection of constrained values.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">name</span><span class="delimiter">&quot;</span></span>, list(inList(<span class="predefined-type">Arrays</span>.asList(<span class="string"><span class="delimiter">&quot;</span><span class="content">Joe</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">Fred</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">Bob</span><span class="delimiter">&quot;</span></span>))))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">name <span class="key">inList</span>: [<span class="string"><span class="delimiter">&quot;</span><span class="content">Joe</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">Fred</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">Bob</span><span class="delimiter">&quot;</span></span>]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Constrains a value so that it must be contained within the given list.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.not.inList</code>, <code>default.not.inlist.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] is not contained within the list [{3}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_matches"><a class="anchor" href="#_constraints_matches"></a>2.6. Matches</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Validates that a String value matches a given regular expression.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">login</span><span class="delimiter">&quot;</span></span>, list(matches(<span class="string"><span class="delimiter">&quot;</span><span class="content">[a-zA-Z]+</span><span class="delimiter">&quot;</span></span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">login <span class="key">matches</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">[a-zA-Z]+</span><span class="delimiter">&quot;</span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Applies a regular expression against a string value.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.matches.invalid</code>, <code>default.doesnt.match.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] does not match the required pattern [{3}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_max"><a class="anchor" href="#_constraints_max"></a>2.7. Max</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Ensures a value does not exceed a maximum value.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">age</span><span class="delimiter">&quot;</span></span>,   list(max(<span class="keyword">new</span> <span class="predefined-type">Date</span>())))
+.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">price</span><span class="delimiter">&quot;</span></span>, list(max(<span class="float">999F</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">age   <span class="key">max</span>: <span class="keyword">new</span> <span class="predefined-type">Date</span>()
+price <span class="key">max</span>: <span class="float">999F</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Sets the maximum value of a class that implements <code>java.lang.Comparable</code>. The type of the value must be the same as the property.</p>
+</div>
+<div class="paragraph">
+<p>Note that constraints are only evaluated once which may be relevant for a constraint that relies on a value like an instance of <code>java.util.Date</code>.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.max.exceeded</code>, <code>default.invalid.max.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] exceeds maximum value [{3}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_maxsize"><a class="anchor" href="#_constraints_maxsize"></a>2.8. MaxSize</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Ensures a value&#8217;s size does not exceed a maximum value.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">children</span><span class="delimiter">&quot;</span></span>, list(maxSize(<span class="integer">25</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">children <span class="key">maxSize</span>: <span class="integer">25</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Sets the maximum size of a collection or number property.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.maxSize.exceeded</code>, <code>default.invalid.max.size.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] exceeds maximum value [{3}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_min"><a class="anchor" href="#_constraints_min"></a>2.9. Min</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Ensures a value does not fall below a minimum value.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">age</span><span class="delimiter">&quot;</span></span>,   list(min(<span class="keyword">new</span> <span class="predefined-type">Date</span>())))
+.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">price</span><span class="delimiter">&quot;</span></span>, list(min(<span class="float">0F</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">age   <span class="key">min</span>: <span class="keyword">new</span> <span class="predefined-type">Date</span>()
+price <span class="key">min</span>: <span class="float">0F</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Sets the minimum value of a class that implements <code>java.lang.Comparable</code>. The type of the value must be the same as the property.</p>
+</div>
+<div class="paragraph">
+<p>Note that constraints are only evaluated once which may be relevant for a constraint that relies on a value like an instance of <code>java.util.Date</code>.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.min.notmet</code>, <code>default.invalid.min.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] is less than minimum value [{3}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_minsize"><a class="anchor" href="#_constraints_minsize"></a>2.10. MinSize</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Ensures a value&#8217;s size does not fall below a minimum value.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">children</span><span class="delimiter">&quot;</span></span>, list(minSize(<span class="integer">25</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">children <span class="key">minSize</span>: <span class="integer">25</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Sets the minimum size of a collection or number property.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.minSize.notmet</code>, <code>default.invalid.min.size.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] is less than the minimum size of [{3}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_notequal"><a class="anchor" href="#_constraints_notequal"></a>2.11. NotEqual</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Ensures that a property is not equal a specified value</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">username</span><span class="delimiter">&quot;</span></span>, list(notEqual(<span class="string"><span class="delimiter">&quot;</span><span class="content">Bob</span><span class="delimiter">&quot;</span></span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">username <span class="key">notEqual</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Bob</span><span class="delimiter">&quot;</span></span></code></pre>
+</div>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.notEqual</code>, <code>default.not.equal.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] cannot equal [{3}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_nullable"><a class="anchor" href="#_constraints_nullable"></a>2.12. Nullable</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Allows a property to be set to <code>null</code>. By default <code>null</code> values for properties are not allowed.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">age</span><span class="delimiter">&quot;</span></span>, list(nullable(<span class="predefined-constant">false</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">age(<span class="key">nullable</span>: <span class="predefined-constant">false</span>)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Set to <code>true</code> if the property allows null values.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.nullable</code>, <code>default.null.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] must not be null</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_range"><a class="anchor" href="#_constraints_range"></a>2.13. Range</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Uses a range to ensure that a property&#8217;s value is within a specified range.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">age</span><span class="delimiter">&quot;</span></span>, list(range(<span class="integer">18</span>, <span class="integer">65</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">age <span class="key">range</span>: <span class="integer">18</span>..<span class="integer">65</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Set to a range which can contain numbers in the form of an IntRange, CharRange, LongRange, DoubleRange, FloatRange or
+EnumRange, depending on the argument types.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.range.toosmall</code>, <code>className.propertyName.range.toobig</code>, <code>default.invalid.range.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] does not fall within the valid range from [{3}] to [{4}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_scale"><a class="anchor" href="#_constraints_scale"></a>2.14. Scale</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Set to the desired scale for floating point numbers (i.e., the number of digits to the right of the decimal point).</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">salary</span><span class="delimiter">&quot;</span></span>, list(scale(<span class="integer">2</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">salary <span class="key">scale</span>: <span class="integer">2</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Set to the desired scale for floating point numbers (i.e., the number of digits to the right of the decimal point).
+This constraint is applicable for properties of the following types: <code>java.lang.Float</code>, <code>java.lang.Double</code>, and
+<code>java.math.BigDecimal</code> (and its subclasses). When validation is invoked, this constraint determines if the number
+includes more nonzero decimal places than the scale permits. If so, it rounds the number to the maximum number of
+decimal places allowed by the scale. This constraint does not generate validation error messages.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p>none</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>none</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_size"><a class="anchor" href="#_constraints_size"></a>2.15. Size</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Uses a range to restrict the size of a collection, a number, or the length of a String.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">children</span><span class="delimiter">&quot;</span></span>, list(size(<span class="integer">5</span>,<span class="integer">15</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">children <span class="key">size</span>: <span class="integer">5</span>..<span class="integer">15</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Sets the size of a collection, a number property, or String length.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.size.toosmall</code>, <code>className.propertyName.size.toobig</code>, <code>default.invalid.size.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] does not fall within the valid size range from [{3}] to [{4}]</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_url"><a class="anchor" href="#_constraints_url"></a>2.16. Url</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>To validate that a String value is a valid URL.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">homePage</span><span class="delimiter">&quot;</span></span>, list(url(<span class="predefined-constant">true</span>)))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">homePage <span class="key">url</span>: <span class="predefined-constant">true</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Set to <code>true</code> if a string must be a URL. Internally uses the <code>org.apache.commons.validator.UrlValidator</code> class.</p>
+</div>
+<div class="hdlist">
+<div class="title">Messages</div>
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.url.invalid</code>, <code>default.invalid.url.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] is not a valid URL</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_constraints_validator"><a class="anchor" href="#_constraints_validator"></a>2.17. Validator</h3>
+<div class="paragraph">
+<div class="title">Purpose</div>
+<p>Adds custom validation to a field.</p>
+</div>
+<div class="listingblock">
+<div class="title">Java</div>
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java">.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">even</span><span class="delimiter">&quot;</span></span>, list(validator( (<span class="predefined-type">Number</span> v) -&gt; {val % <span class="integer">2</span> ? <span class="string"><span class="delimiter">&quot;</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">validator.invalid</span><span class="delimiter">&quot;</span></span>}<span class="error"> </span>)))
+.e(<span class="string"><span class="delimiter">&quot;</span><span class="content">password2</span><span class="delimiter">&quot;</span></span>, list(validator( (<span class="predefined-type">Number</span> v, Bean b) -&gt; areEqual(b.password, val) ? <span class="string"><span class="delimiter">&quot;</span><span class="delimiter">&quot;</span></span> : <span class="string"><span class="delimiter">&quot;</span><span class="content">passwords.do.not.match</span><span class="delimiter">&quot;</span></span> )))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy">even(validator{ val -&gt; val % <span class="integer">2</span> ? <span class="string"><span class="delimiter">'</span><span class="delimiter">'</span></span> : <span class="string"><span class="delimiter">'</span><span class="content">validator.invalid</span><span class="delimiter">'</span></span> })
+password2(validator{ v, obj -&gt; obj.password == val ? <span class="string"><span class="delimiter">'</span><span class="delimiter">'</span></span> : <span class="string"><span class="delimiter">'</span><span class="content">passwords.do.not.match</span><span class="delimiter">'</span></span> })</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>A custom validator is implemented by a Closure that takes up to two parameters. If the Closure accepts zero or
+one parameter, the parameter value will be the one being validated ("it" in the case of a zero-parameter Closure).
+If it accepts two parameters the first is the value and the second is the class instance being validated.
+This is useful when your validation needs access to other fields, for example when checking that two entered
+passwords are the same.</p>
+</div>
+<div class="paragraph">
+<p>The closure can return:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>null or empty String to indicate that the value is valid.</p>
+</li>
+<li>
+<p>a String to indicate the error code to append to the "classname.propertyName." String used to resolve the
+error message. If a field-specific message cannot be resolved, the error code itself will be resolved allowing
+for global error messages.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Messages</div>
+<p>For property validator</p>
+</div>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.validator.invalid</code>, <code>default.invalid.property.validator.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] is invalid</p>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For Object validator</p>
+</div>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+Error Codes
+</td>
+<td class="hdlist2">
+<p><code>className.propertyName.validator.invalid</code>, <code>default.invalid.object.validator.message</code></p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Template
+</td>
+<td class="hdlist2">
+<p>Property [{0}] of class [{1}] with value [{2}] is invalid</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuration"><a class="anchor" href="#_configuration"></a>3. Build Configuration</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_gradle"><a class="anchor" href="#_gradle"></a>3.1. Gradle</h3>
+<div class="paragraph">
+<p>You have two options for configuring this plugin: automatic and manual.</p>
+</div>
+<div class="sect3">
+<h4 id="_automatic"><a class="anchor" href="#_automatic"></a>3.1.1. Automatic</h4>
+<div class="paragraph">
+<p>As long as the project has the <code>org.codehaus.griffon.validation</code> plugin applied to it you
+may include the following snippet in <code>build.gradle</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
+    griffon 'org.codehaus.griffon.plugins:griffon-validation-plugin:1.0.0'
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>griffon</code> plugin will take care of the rest given its configuration.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_manual"><a class="anchor" href="#_manual"></a>3.1.2. Manual</h4>
+<div class="paragraph">
+<p>You will need to configure any of the following blocks depending on your setup</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
+    compile 'org.codehaus.griffon.plugins:griffon-validation-core:1.0.0'
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
+    compile 'org.codehaus.griffon.plugins:griffon-validation-groovy:1.0.0'
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Compile Only</div>
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
+    compileOnly 'org.codehaus.griffon.plugins:griffon-validation-groovy-compile:1.0.0'
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_maven"><a class="anchor" href="#_maven"></a>3.2. Maven</h3>
+<div class="paragraph">
+<p>First configure the <code>griffon-validation-plugin</code> BOM in your POM file, by placing the following
+snippet before the <code>&lt;build&gt;</code> element</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="xml"><span class="tag">&lt;dependencyManagement&gt;</span>
+    <span class="tag">&lt;dependencies&gt;</span>
+        <span class="tag">&lt;dependency&gt;</span>
+            <span class="tag">&lt;groupId&gt;</span>org.codehaus.griffon.plugins<span class="tag">&lt;/groupId&gt;</span>
+            <span class="tag">&lt;artifactId&gt;</span>griffon-validation-plugin<span class="tag">&lt;/artifactId&gt;</span>
+            <span class="tag">&lt;version&gt;</span>1.0.0<span class="tag">&lt;/version&gt;</span>
+            <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
+            <span class="tag">&lt;scope&gt;</span>import<span class="tag">&lt;/scope&gt;</span>
+        <span class="tag">&lt;/dependency&gt;</span>
+    <span class="tag">&lt;/dependencies&gt;</span>
+<span class="tag">&lt;/dependencyManagement&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next configure dependencies as required by your particular setup</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.codehaus.griffon.plugins<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>griffon-validation-core<span class="tag">&lt;/artifactId&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.codehaus.griffon.plugins<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>griffon-validation-groovy<span class="tag">&lt;/artifactId&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Provided scope</div>
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.codehaus.griffon.plugins<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>griffon-validation-groovy-compile<span class="tag">&lt;/artifactId&gt;</span>
+<span class="tag">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Don&#8217;t forget to configure all <code>-compile</code> dependencies with the maven-surefire-plugin, like so</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="xml"><span class="tag">&lt;plugin&gt;</span>
+    <span class="tag">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/groupId&gt;</span>
+    <span class="tag">&lt;artifactId&gt;</span>maven-surefire-plugin<span class="tag">&lt;/artifactId&gt;</span>
+    <span class="tag">&lt;configuration&gt;</span>
+        <span class="tag">&lt;classpathDependencyExcludes&gt;</span>
+            <span class="tag">&lt;classpathDependencyExclude&gt;</span>
+                org.codehaus.griffon:griffon-validation-groovy-compile
+            <span class="tag">&lt;/classpathDependencyExclude&gt;</span>
+        <span class="tag">&lt;/classpathDependencyExcludes&gt;</span>
+    <span class="tag">&lt;/configuration&gt;</span>
+<span class="tag">&lt;/plugin&gt;</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_modules"><a class="anchor" href="#_modules"></a>4. Modules</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following sections display all bindings per module. Use this information to
+successfully override a binding on your own modules or to troubleshoot a module
+binding if the wrong type has been applied by the Griffon runtime.</p>
+</div>
+<div class="sect2">
+<h3 id="_validation"><a class="anchor" href="#_validation"></a>4.1. Validation</h3>
+<div class="paragraph">
+<p>Module name: <code>validation</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java">bind(ConstraintsEvaluator.class)
+    .to(DefaultConstraintsEvaluator.class)
+    .asSingleton();
+
+bind(ConstraintsValidator.class)
+    .to(DefaultConstraintsValidator.class)
+    .asSingleton();
+
+bind(ConstrainedPropertyAssembler.class)
+    .to(DefaultConstrainedPropertyAssembler.class);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_groovy"><a class="anchor" href="#_groovy"></a>4.2. Groovy</h3>
+<div class="paragraph">
+<p>Module name: <code>validation-groovy</code></p>
+</div>
+<div class="paragraph">
+<p>Depends on: <code>validation</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="java">bind(ConstrainedPropertyAssembler.class)
+    .to(GroovyAwareConstrainedPropertyAssembler.class);</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links"><a class="anchor" href="#_links"></a>5. Links</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="api/index.html" target="_blank">Javadoc</a></p>
+</div>
+<div class="paragraph">
+<p><a href="api-src/index.html" target="_blank">API Sources</a></p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0.0<br>
+Last updated 2015-02-09 11:35:49 CET
+</div>
+</div>
+</body>
+</html>

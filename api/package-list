@@ -1,0 +1,7 @@
+griffon.plugins.validation
+griffon.plugins.validation.constraints
+griffon.plugins.validation.exceptions
+griffon.transform
+griffon.types
+org.codehaus.griffon.runtime.validation
+org.codehaus.griffon.runtime.validation.constraints
