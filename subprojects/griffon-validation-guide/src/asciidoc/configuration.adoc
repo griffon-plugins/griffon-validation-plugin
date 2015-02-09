@@ -8,7 +8,7 @@ You have two options for configuring this plugin: automatic and manual.
 
 === Automatic
 
-As long as the project has the `org.codehaus.griffon.validation` plugin applied to it you
+As long as the project has the `org.codehaus.griffon.griffon` plugin applied to it you
 may include the following snippet in `build.gradle`
 
 [source,groovy,options="nowrap"]
