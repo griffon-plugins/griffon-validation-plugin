@@ -21,7 +21,7 @@ dependencies {
 
     testRuntime "org.codehaus.griffon:griffon-guice:${griffon.version}"
     testRuntime "org.codehaus.griffon:griffon-groovy:${griffon.version}"
-    testRuntime 'org.slf4j:slf4j-simple:1.7.7'
+    testRuntime 'org.slf4j:slf4j-simple:1.7.10'
 }
 
 compileGroovy.enabled = false
