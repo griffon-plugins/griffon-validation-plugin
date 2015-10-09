@@ -16,6 +16,7 @@
 package org.codehaus.griffon.runtime.validation;
 
 import griffon.core.injection.Module;
+import griffon.plugins.validation.ErrorMessagesResolver;
 import griffon.plugins.validation.constraints.ConstrainedPropertyAssembler;
 import griffon.plugins.validation.constraints.ConstraintsEvaluator;
 import griffon.plugins.validation.constraints.ConstraintsValidator;
@@ -46,6 +47,10 @@ public class ValidationModule extends AbstractModule {
 
         bind(ConstrainedPropertyAssembler.class)
             .to(DefaultConstrainedPropertyAssembler.class);
+
+        bind(ErrorMessagesResolver.class)
+            .to(DefaultErrorMessagesResolver.class)
+            .asSingleton();
         // end::bindings[]
     }
 }

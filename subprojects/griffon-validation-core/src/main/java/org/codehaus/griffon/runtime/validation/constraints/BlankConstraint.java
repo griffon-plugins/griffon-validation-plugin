@@ -32,7 +32,7 @@ import static java.util.Objects.requireNonNull;
 public class BlankConstraint extends AbstractVetoingConstraint {
     public static final String VALIDATION_DSL_NAME = "blank";
     public static final String DEFAULT_BLANK_MESSAGE_CODE = "default.blank.message";
-    public static final String DEFAULT_BLANK_MESSAGE = "Property [{0}] of class [{1}] cannot be blank";
+    public static final String DEFAULT_BLANK_MESSAGE = "Property [{0}] of class [{1}] must not be blank";
 
     private boolean blank;
 

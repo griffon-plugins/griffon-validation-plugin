@@ -65,7 +65,7 @@ public class DefaultConstraintsValidator implements ConstraintsValidator {
     @Nullable
     protected Object getPropertyValue(@Nonnull Validateable validateable, @Nonnull String propertyName) {
         requireNonNull(validateable, ERROR_VALIDATEABLE_NULL);
-        requireNonBlank(propertyName, "Argument 'propertyName' cannot be blank");
+        requireNonBlank(propertyName, "Argument 'propertyName' must not be blank");
         return GriffonClassUtils.getPropertyValue(validateable, propertyName);
     }
 }

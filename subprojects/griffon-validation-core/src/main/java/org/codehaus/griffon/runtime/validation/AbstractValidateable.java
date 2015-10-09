@@ -44,15 +44,17 @@ public abstract class AbstractValidateable implements Validateable {
 
     @PostConstruct
     private void initialize() {
-        constrainedProperties.putAll(constraintsEvaluator.evaluate(getClass()));
+        if (constraintsEvaluator != null) {
+            constrainedProperties.putAll(constraintsEvaluator.evaluate(getClass()));
+        }
     }
 
     public boolean validate(String... properties) {
-        return constraintsValidator.evaluate(this, properties);
+        return constraintsValidator == null || constraintsValidator.evaluate(this, properties);
     }
 
     public boolean validate(@Nonnull List<String> properties) {
-        return constraintsValidator.evaluate(this, properties);
+        return constraintsValidator == null || constraintsValidator.evaluate(this, properties);
     }
 
     @Nonnull

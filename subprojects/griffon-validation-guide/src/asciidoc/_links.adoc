@@ -3,5 +3,6 @@
 :api_validateable_ast: link:api/griffon/transform/Validateable.html[@griffon.transform.Validateable, window="_blank"]
 :api_constraintdef: link:api/griffon/plugins/validation/constraints/ConstraintDef.html[ConstraintDef, window="_blank"]
 :api_constraints: link:api/griffon/plugins/validation/constraints/Constraints.html[Constraints, window="_blank"]
+:api_errors_messages_resolver: link:api/griffon/plugins/validation/ErrorMessagesResolver.html[ErrorMessagesResolver, window="_blank"]
 :api_errors: link:api/griffon/plugins/validation/Errors.html[Errors, window="_blank"]
 

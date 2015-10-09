@@ -49,7 +49,7 @@ public class DefaultObjectError implements ObjectError {
     }
 
     public DefaultObjectError(@Nonnull String code, Object[] arguments, String defaultMessage) {
-        this.code = requireNonBlank(code, "Argument 'code' cannot be blank");
+        this.code = requireNonBlank(code, "Argument 'code' must not be blank");
         this.codes = new String[]{code};
         this.arguments = null == arguments ? NO_ARGS : copy(arguments);
         this.defaultMessage = isBlank(defaultMessage) ? code : defaultMessage;

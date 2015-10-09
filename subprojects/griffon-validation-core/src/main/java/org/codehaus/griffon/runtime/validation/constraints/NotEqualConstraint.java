@@ -30,7 +30,7 @@ import static java.util.Objects.requireNonNull;
 public class NotEqualConstraint extends AbstractConstraint {
     public static final String VALIDATION_DSL_NAME = "notEqual";
     public static final String DEFAULT_NOT_EQUAL_MESSAGE_CODE = "default.not.equal.message";
-    public static final String DEFAULT_NOT_EQUAL_MESSAGE = "Property [{0}] of class [{1}] with value [{2}] cannot equal [{3}]";
+    public static final String DEFAULT_NOT_EQUAL_MESSAGE = "Property [{0}] of class [{1}] with value [{2}] must not be equal to [{3}]";
 
     @Override
     public boolean supports(@Nonnull Class<?> type) {

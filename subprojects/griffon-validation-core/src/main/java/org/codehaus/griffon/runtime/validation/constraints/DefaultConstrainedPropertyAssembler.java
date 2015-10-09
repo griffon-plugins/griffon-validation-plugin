@@ -15,7 +15,7 @@
  */
 package org.codehaus.griffon.runtime.validation.constraints;
 
-import griffon.core.GriffonApplication;
+import griffon.core.i18n.MessageSource;
 import griffon.exceptions.PropertyException;
 import griffon.plugins.validation.constraints.ConstrainedProperty;
 import griffon.plugins.validation.constraints.ConstrainedPropertyAssembler;
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,17 +48,9 @@ public class DefaultConstrainedPropertyAssembler implements ConstrainedPropertyA
     protected int order = 1;
     protected Class<?> targetClass;
     protected ClassPropertyFetcher classPropertyFetcher;
-    protected final GriffonApplication application;
 
-    @Inject
-    public DefaultConstrainedPropertyAssembler(@Nonnull GriffonApplication application) {
-        this.application = requireNonNull(application, "Argument 'application' must not be null");
-    }
-
-    @Nonnull
-    protected GriffonApplication getApplication() {
-        return application;
-    }
+    @Inject @Named("applicationMessageSource")
+    protected MessageSource messageSource;
 
     @Override
     public void setTargetClass(@Nonnull Class<?> targetClass) {
@@ -88,7 +81,7 @@ public class DefaultConstrainedPropertyAssembler implements ConstrainedPropertyA
 
     @Nullable
     public String getSharedConstraint(@Nonnull String propertyName) {
-        return sharedConstraints.get(requireNonBlank(propertyName, "Argument 'propertyName' cannot be blank"));
+        return sharedConstraints.get(requireNonBlank(propertyName, "Argument 'propertyName' must not be blank"));
     }
 
     protected void assembleConstraint(@Nonnull String property, @Nonnull List<ConstraintDef> constraints) {
@@ -101,7 +94,7 @@ public class DefaultConstrainedPropertyAssembler implements ConstrainedPropertyA
                 throw new PropertyException(targetClass, property);
             }
             cp = new ConstrainedProperty(targetClass, property, propertyType);
-            cp.setMessageSource(application.getMessageSource());
+            cp.setMessageSource(messageSource);
             cp.setOrder(order++);
             constrainedProperties.put(property, cp);
         }

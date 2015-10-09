@@ -78,7 +78,7 @@ import static java.util.Objects.requireNonNull;
  */
 @SuppressWarnings("serial")
 public class ConstrainedProperty {
-    private static final String ERROR_NAME_BLANK = "Argument 'name' cannot be blank";
+    private static final String ERROR_NAME_BLANK = "Argument 'name' must not be blank";
 
     protected static Map<String, List<Object>> constraints = new HashMap<>();
     public static final Map<String, String> DEFAULT_MESSAGES = new HashMap<>();
@@ -153,7 +153,7 @@ public class ConstrainedProperty {
      */
     public ConstrainedProperty(@Nonnull Class<?> clazz, @Nonnull String propertyName, @Nonnull Class<?> propertyType) {
         this.owningClass = requireNonNull(clazz, "Argument 'clazz' must not be null");
-        this.propertyName = requireNonBlank(propertyName, "Argument 'propertyName' cannot be blank");
+        this.propertyName = requireNonBlank(propertyName, "Argument 'propertyName' must not be blank");
         this.propertyType = requireNonNull(propertyType, "Argument 'propertyType' must not be null");
     }
 

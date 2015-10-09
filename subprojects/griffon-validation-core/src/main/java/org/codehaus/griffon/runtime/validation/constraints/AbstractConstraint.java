@@ -147,7 +147,7 @@ public abstract class AbstractConstraint implements Constraint {
 
                 String classNameCode = fullClassName + ".error.label";
                 String resolvedClassName = messageSource.getMessage(classNameCode, locale, fullClassName);
-                final String classAsPropertyName = GriffonNameUtils.getPropertyName(constrainedClass);
+                String classAsPropertyName = GriffonNameUtils.getPropertyName(constrainedClass);
 
                 if (resolvedClassName.equals(fullClassName)) {
                     // try short version

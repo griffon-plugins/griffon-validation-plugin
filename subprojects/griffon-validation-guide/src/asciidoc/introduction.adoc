@@ -20,6 +20,14 @@ and their constraints
 include::{subproject-base}core/src/test/java/{package-base}/Credentials.java[lines=16..-1]
 ----
 
+The following is a variation that relies on static methods to provide the names of the properties to be validated
+
+[source,java,linenums,options="nowrap"]
+.giffon.plugins.validation.Credentials2.java
+----
+include::{subproject-base}core/src/test/java/{package-base}/Credentials2.java[lines=16..-1]
+----
+
 Here's the Groovy version. Notice that constraints are defined using a block instead of a list
 
 [source,groovy,linenums,options="nowrap"]
@@ -39,7 +47,7 @@ User user = application.injector.getInstance(User)
 if (user.validate()) {
      // do something with user
 } else {
-    user.errors.allErrors.each { println it }
+    errorsTranslator(user.errors).each { println it }
 }
 ----
 
@@ -55,7 +63,11 @@ The following conventions must be followed:
 
  * the class must have a `public static final Map<String, List<ConstraintDef>> CONSTRAINTS` field.
  * property names are used as keys.
- * a list of `{api_constraintdef}` is set as entry value.
+ * a List of `{api_constraintdef}` is set as entry value.
+
+As an alternative you may follow these conventions
+
+ * the class must have a `public static final Collection<PropertyConstraintDef> CONSTRAINTS` field.
 
 Constraints will be evaluated in the order they were defined, top to bottom, left to right.
 
@@ -115,6 +127,8 @@ user.login.blank=Your login name must be specified!
 The class name is looked for both with and without a package, with the packaged version taking precedence.
 So for example, `com.acme.myapp.User.login.blank` will be used before `user.login.blank`.
 
+You may inject an instance of `{api_errors_messages_resolver}` to resolve i18n messages for all errors.
+
 == The @Validatable AST Transformation
 
 You can apply the `{api_validateable_ast}` AST transformation on any class. This injects the behavior of `{api_validateable}`
@@ -136,5 +150,7 @@ class GroovyCredentials {
     }
 }
 ----
+
+Griffon version: {griffon-version}
 
 

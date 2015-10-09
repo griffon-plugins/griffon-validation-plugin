@@ -15,7 +15,6 @@
  */
 package org.codehaus.griffon.runtime.validation.constraints;
 
-import griffon.core.GriffonApplication;
 import griffon.plugins.validation.constraints.ConstrainedProperty;
 import griffon.plugins.validation.constraints.Constraint;
 import griffon.plugins.validation.constraints.ConstraintsEvaluator;
@@ -64,11 +63,6 @@ public class GroovyAwareConstrainedPropertyAssembler extends DefaultConstrainedP
 
     @Inject
     private ConstraintsEvaluator constraintsEvaluator;
-
-    @Inject
-    public GroovyAwareConstrainedPropertyAssembler(@Nonnull GriffonApplication application) {
-        super(application);
-    }
 
     @Override
     public void assemble(@Nonnull Object constraints) {
@@ -134,7 +128,7 @@ public class GroovyAwareConstrainedPropertyAssembler extends DefaultConstrainedP
                     throw new MissingMethodException(property, targetClass, new Object[]{attributes}, true);
                 }
                 cp = new ConstrainedProperty(targetClass, property, propertyType);
-                cp.setMessageSource(getApplication().getMessageSource());
+                cp.setMessageSource(messageSource);
                 cp.setOrder(order++);
                 constrainedProperties.put(property, cp);
             }

@@ -70,6 +70,11 @@ public final class Constraints {
     }
 
     @Nonnull
+    public static CollectionUtils.SetBuilder<PropertyConstraintDef> set() {
+        return CollectionUtils.set();
+    }
+
+    @Nonnull
     public static ConstraintDef blank(boolean value) {
         return new ConstraintDef(BlankConstraint.VALIDATION_DSL_NAME, value);
     }

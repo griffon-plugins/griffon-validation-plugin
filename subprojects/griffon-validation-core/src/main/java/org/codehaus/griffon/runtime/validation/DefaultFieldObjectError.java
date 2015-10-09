@@ -60,7 +60,7 @@ public class DefaultFieldObjectError extends DefaultObjectError implements Field
 
     public DefaultFieldObjectError(@Nonnull String fieldName, @Nullable Object rejectedValue, @Nonnull String code, Object[] arguments, String defaultMessage) {
         super(code, arguments, defaultMessage);
-        this.fieldName = requireNonBlank(fieldName, "Argument 'fieldName' cannot be blank");
+        this.fieldName = requireNonBlank(fieldName, "Argument 'fieldName' must not be blank");
         this.rejectedValue = rejectedValue;
     }
 
@@ -94,7 +94,7 @@ public class DefaultFieldObjectError extends DefaultObjectError implements Field
 
     public DefaultFieldObjectError(@Nonnull String fieldName, @Nullable Object rejectedValue, @Nonnull String[] codes, Object[] arguments, String defaultMessage) {
         super(codes, arguments, defaultMessage);
-        this.fieldName = requireNonBlank(fieldName, "Argument 'fieldName' cannot be blank");
+        this.fieldName = requireNonBlank(fieldName, "Argument 'fieldName' must not be blank");
         this.rejectedValue = rejectedValue;
     }
 

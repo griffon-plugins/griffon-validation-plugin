@@ -15,12 +15,13 @@
  */
 package griffon.plugins.validation.constraints;
 
-import griffon.core.GriffonApplication;
+import griffon.core.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -38,8 +39,8 @@ public class ConstraintUtils {
     private static final ReentrantReadWriteLock DEFAULT_CONSTRAINTS_LOCK = new ReentrantReadWriteLock();
 
     @Nonnull
-    public static Map<String, Object> getDefaultConstraints(@Nonnull GriffonApplication application) {
-        requireNonNull(application, "Argument 'application' must not be null");
-        return application.getConfiguration().get(KEY_DEFAULT_CONSTRAINTS, Collections.<String, Object>emptyMap());
+    public static Map<String, List<ConstraintDef>> getDefaultConstraints(@Nonnull Configuration configuration) {
+        requireNonNull(configuration, "Argument 'configuration' must not be null");
+        return configuration.get(KEY_DEFAULT_CONSTRAINTS, Collections.<String, List<ConstraintDef>>emptyMap());
     }
 }
