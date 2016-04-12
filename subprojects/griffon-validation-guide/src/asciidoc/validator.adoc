@@ -15,8 +15,8 @@ Adds custom validation to a field.
 [source,groovy,options="nowrap"]
 .Groovy
 ----
-even(validator{ val -> val % 2 ? '' : 'validator.invalid' })
-password2(validator{ v, obj -> obj.password == val ? '' : 'passwords.do.not.match' })
+even(validator: { val -> val % 2 ? '' : 'validator.invalid' })
+password2(validator: { v, obj -> obj.password == val ? '' : 'passwords.do.not.match' })
 ----
 
 .Description
