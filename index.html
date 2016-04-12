@@ -1319,8 +1319,8 @@ Template
 <div class="listingblock">
 <div class="title">Groovy</div>
 <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="groovy">even(validator{ val -&gt; val % <span class="integer">2</span> ? <span class="string"><span class="delimiter">'</span><span class="delimiter">'</span></span> : <span class="string"><span class="delimiter">'</span><span class="content">validator.invalid</span><span class="delimiter">'</span></span> })
-password2(validator{ v, obj -&gt; obj.password == val ? <span class="string"><span class="delimiter">'</span><span class="delimiter">'</span></span> : <span class="string"><span class="delimiter">'</span><span class="content">passwords.do.not.match</span><span class="delimiter">'</span></span> })</code></pre>
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy">even(<span class="key">validator</span>: { val -&gt; val % <span class="integer">2</span> ? <span class="string"><span class="delimiter">'</span><span class="delimiter">'</span></span> : <span class="string"><span class="delimiter">'</span><span class="content">validator.invalid</span><span class="delimiter">'</span></span> })
+password2(<span class="key">validator</span>: { v, obj -&gt; obj.password == val ? <span class="string"><span class="delimiter">'</span><span class="delimiter">'</span></span> : <span class="string"><span class="delimiter">'</span><span class="content">passwords.do.not.match</span><span class="delimiter">'</span></span> })</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1584,7 +1584,7 @@ bind(ErrorMessagesResolver.class)
 <div id="footer">
 <div id="footer-text">
 Version 1.2.0<br>
-Last updated 2015-02-09 11:35:49 CET
+Last updated 2015-02-09 11:35:49 +01:00
 </div>
 </div>
 </body>
