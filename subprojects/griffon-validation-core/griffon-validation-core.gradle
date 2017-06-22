@@ -15,13 +15,13 @@ dependencies {
     compile('commons-lang:commons-lang:2.6') {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
-    compile('commons-validator:commons-validator:1.4.1') {
+    compile('commons-validator:commons-validator:1.5.1') {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
 
     testRuntime "org.codehaus.griffon:griffon-guice:${griffon.version}"
     testRuntime "org.codehaus.griffon:griffon-groovy:${griffon.version}"
-    testRuntime 'org.slf4j:slf4j-simple:1.7.12'
+    testRuntime 'org.slf4j:slf4j-simple:1.7.21'
 }
 
 compileGroovy.enabled = false

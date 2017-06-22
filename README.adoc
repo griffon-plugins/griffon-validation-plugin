@@ -9,6 +9,11 @@ image:https://api.bintray.com/packages/griffon/griffon-plugins/{project-name}/im
 
 ---
 
+image:https://img.shields.io/gitter/room/griffon/griffon.js.svg[link="https://gitter.im/griffon/griffon]
+image:https://img.shields.io/badge/donations-Patreon-orange.svg[https://www.patreon.com/user?u=6609318]
+
+---
+
 The validation plugin enables Java and Groovy friendly DSLs for evaluating property constraints on POJO/POGO classes.
 The validation DSL is heavily inspired by link:http://grails.github.io/grails-doc/latest/guide/GORM.html[GORM, window="_blank"].
 

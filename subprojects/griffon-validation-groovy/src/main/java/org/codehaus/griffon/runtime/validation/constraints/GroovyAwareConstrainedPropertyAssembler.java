@@ -194,7 +194,7 @@ public class GroovyAwareConstrainedPropertyAssembler extends DefaultConstrainedP
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         private Object handleImportFrom(Map attributes, Class importFromClazz) {
-            Map importFromConstrainedProperties = constraintsEvaluator.evaluate(importFromClazz);
+            Map<String, ConstrainedProperty> importFromConstrainedProperties = constraintsEvaluator.evaluate(importFromClazz);
 
             PropertyDescriptor[] targetPropertyDescriptorArray = classPropertyFetcher.getPropertyDescriptors();
 
@@ -221,8 +221,7 @@ public class GroovyAwareConstrainedPropertyAssembler extends DefaultConstrainedP
             resultingPropertyNames.remove("metaClass");
 
             for (String targetPropertyName : resultingPropertyNames) {
-                ConstrainedProperty importFromConstrainedProperty =
-                    (ConstrainedProperty) importFromConstrainedProperties.get(targetPropertyName);
+                ConstrainedProperty importFromConstrainedProperty = importFromConstrainedProperties.get(targetPropertyName);
 
                 if (importFromConstrainedProperty != null) {
                     // Map importFromConstrainedPropertyAttributes = importFromConstrainedProperty.getAttributes();
