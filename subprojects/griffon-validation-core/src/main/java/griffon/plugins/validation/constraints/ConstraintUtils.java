@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +17,11 @@
  */
 package griffon.plugins.validation.constraints;
 
+import griffon.annotations.core.Nonnull;
 import griffon.core.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,6 @@ public class ConstraintUtils {
     @Nonnull
     public static Map<String, List<ConstraintDef>> getDefaultConstraints(@Nonnull Configuration configuration) {
         requireNonNull(configuration, "Argument 'configuration' must not be null");
-        return configuration.get(KEY_DEFAULT_CONSTRAINTS, Collections.<String, List<ConstraintDef>>emptyMap());
+        return configuration.get(KEY_DEFAULT_CONSTRAINTS, Collections.emptyMap());
     }
 }

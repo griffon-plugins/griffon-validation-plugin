@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,12 +17,13 @@
  */
 package griffon.plugins.validation.constraints;
 
-import griffon.types.CharRange;
-import griffon.types.DoubleRange;
-import griffon.types.EnumRange;
-import griffon.types.FloatRange;
-import griffon.types.IntRange;
-import griffon.types.LongRange;
+import griffon.annotations.core.Nonnull;
+import griffon.plugins.validation.types.CharRange;
+import griffon.plugins.validation.types.DoubleRange;
+import griffon.plugins.validation.types.EnumRange;
+import griffon.plugins.validation.types.FloatRange;
+import griffon.plugins.validation.types.IntRange;
+import griffon.plugins.validation.types.LongRange;
 import griffon.util.CollectionUtils;
 import org.codehaus.griffon.runtime.validation.constraints.BlankConstraint;
 import org.codehaus.griffon.runtime.validation.constraints.CreditCardConstraint;
@@ -40,7 +43,6 @@ import org.codehaus.griffon.runtime.validation.constraints.SizeConstraint;
 import org.codehaus.griffon.runtime.validation.constraints.UrlConstraint;
 import org.codehaus.griffon.runtime.validation.constraints.ValidatorConstraint;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,7 +66,7 @@ public final class Constraints {
 
     @Nonnull
     public static CollectionUtils.ListBuilder<ConstraintDef> list(@Nonnull ConstraintDef... defs) {
-        CollectionUtils.ListBuilder<ConstraintDef> list = CollectionUtils.<ConstraintDef>list();
+        CollectionUtils.ListBuilder<ConstraintDef> list = CollectionUtils.list();
         Collections.addAll(list, defs);
         return list;
     }

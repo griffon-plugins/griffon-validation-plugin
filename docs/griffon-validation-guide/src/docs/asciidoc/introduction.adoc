@@ -1,0 +1,156 @@
+
+[[_introduction]]
+= Introduction
+
+:subproject-base: {rootdir}/subprojects/griffon-validation-
+:package-base: griffon/plugins/validation
+
+The validation plugin enables Java and Groovy friendly DSLs for evaluating property constraints on POJO/POGO classes.
+The validation DSL is heavily inspired by link:http://grails.github.io/grails-doc/latest/guide/GORM.html[GORM, window="_blank"].
+
+== Declaring Constraints
+
+A validateable POJO/POGO must implement the `{api_validateable}` interface and define a conventional static property
+that contains constraints definitions. The following example shows a `Credentials` POJO with two properties
+and their constraints
+
+[source,java,linenums,options="nowrap"]
+.giffon.plugins.validation.Credentials.java
+----
+include::{subproject-base}core/src/test/java/{package-base}/Credentials.java[lines=18..-1]
+----
+
+The following is a variation that relies on static methods to provide the names of the properties to be validated
+
+[source,java,linenums,options="nowrap"]
+.giffon.plugins.validation.Credentials2.java
+----
+include::{subproject-base}core/src/test/java/{package-base}/Credentials2.java[lines=18..-1]
+----
+
+Here's the Groovy version. Notice that constraints are defined using a block instead of a list
+
+[source,groovy,linenums,options="nowrap"]
+.giffon.plugins.validation.GroovyCredentials.groovy
+----
+include::{subproject-base}groovy/src/test/groovy/{package-base}/GroovyCredentials.groovy[lines=18..-1]
+----
+
+== Validating Basics
+
+Call the `validate` method to validate a validateable class instance:
+
+[source,groovy]
+----
+User user = application.injector.getInstance(User)
+// TODO: update user properties
+if (user.validate()) {
+     // do something with user
+} else {
+    errorsTranslator(user.errors).each { println it }
+}
+----
+
+The `errors` property on validateable classes is an instance of the `{api_errors}` interface. The `{api_errors}`
+interface provides methods to navigate the validation errors and also retrieve the original values.
+
+=== Java DSL
+
+POJOs must define their constraints as a `Map` of nested `{api_constraintdef}` instances. The `{api_constraints}` class
+provides helper methods that can be statically imported; these methods make it very easy to create such nested structure.
+
+The following conventions must be followed:
+
+ * the class must have a `public static final Map<String, List<ConstraintDef>> CONSTRAINTS` field.
+ * property names are used as keys.
+ * a List of `{api_constraintdef}` is set as entry value.
+
+As an alternative you may follow these conventions
+
+ * the class must have a `public static final Collection<PropertyConstraintDef> CONSTRAINTS` field.
+
+Constraints will be evaluated in the order they were defined, top to bottom, left to right.
+
+=== Groovy DSL
+
+POGOs must define their constraints as a block. Each method inside this block is treated as a constraint definition.
+
+The following conventions must be followed:
+
+ * the class must have a `static final CONSTRAINTS` closure field.
+ * method names must match property names to be validated.
+ * method arguments match constraint names by key.
+
+Constraints will be evaluated in the order they were defined, top to bottom, left to right.
+
+== Validation and Internationalization
+
+An important thing to note about errors is that error messages are not hard coded anywhere. Applications resolve
+messages from the *i18n* message bundles.
+
+The codes themselves are dictated by a convention. For example consider these constraintss:
+
+[source,groovy]
+----
+package com.acme
+
+class User extends AbstractValidateable {
+    static final CONSTRAINTS= {
+         login size: 5..15, blank: false
+         password size: 5..15, blank: false
+         email email: true, blank: false
+         age min: 18
+    }
+
+    String login
+    String password
+    String email
+    int age
+}
+----
+
+If a constraint is violated the plugin will, by convention, look for a message code of the form
+
+----
+[Class Name].[Property Name].[Constraint Code]
+----
+
+In the case of the `blank` constraint this would be
+`user.login.blank so you would need a message such as the following in your `griffon-app/i18n/messages.properties file:
+
+[source,java]
+.griffon-app/i18n/messages.properties
+----
+user.login.blank=Your login name must be specified!
+----
+
+The class name is looked for both with and without a package, with the packaged version taking precedence.
+So for example, `com.acme.myapp.User.login.blank` will be used before `user.login.blank`.
+
+You may inject an instance of `{api_errors_messages_resolver}` to resolve i18n messages for all errors.
+
+== The @Validatable AST Transformation
+
+You can apply the `{api_validateable_ast}` AST transformation on any class. This injects the behavior of `{api_validateable}`
+into said class. The previous GroovyCredentials shown earlier can be rewritten as follows
+
+[source,groovy,options="nowrap"]
+.griffon.plugins.validation.GroovyCredentials.groovy
+----
+package griffon.plugins.validation
+
+@griffon.transform.validation.Validateable
+class GroovyCredentials {
+    String username
+    String password
+
+    static final CONSTRAINTS = {
+        username(blank: false, size: 3..10)
+        password(blank: false, size: 8..10)
+    }
+}
+----
+
+Griffon version: {griffon-version}
+
+

@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +17,13 @@
  */
 package org.codehaus.griffon.runtime.validation.constraints;
 
-import griffon.core.editors.PropertyEditorResolver;
+import griffon.annotations.core.Nonnull;
 import griffon.plugins.validation.Errors;
-import griffon.types.Range;
+import griffon.plugins.validation.types.Range;
 
-import javax.annotation.Nonnull;
-import java.beans.PropertyEditor;
+import javax.application.converter.Converter;
 
+import static griffon.util.ConverterRegistryHolder.getConverterRegistry;
 import static griffon.util.GriffonClassUtils.isAssignableOrConvertibleFrom;
 import static griffon.util.GriffonClassUtils.requireState;
 import static java.util.Objects.requireNonNull;
@@ -35,7 +37,6 @@ public class RangeConstraint extends AbstractConstraint {
     public static final String VALIDATION_DSL_NAME = "range";
     public static final String DEFAULT_INVALID_RANGE_MESSAGE_CODE = "default.invalid.range.message";
     public static final String DEFAULT_INVALID_RANGE_MESSAGE = "Property [{0}] of class [{1}] with value [{2}] does not fall within the valid range from [{3}] to [{4}]";
-
     private Range range;
 
     /**
@@ -105,17 +106,15 @@ public class RangeConstraint extends AbstractConstraint {
             return ((Number) value).longValue();
         }
 
-        PropertyEditor longPropertyEditor = PropertyEditorResolver.findEditor(Long.TYPE);
-        PropertyEditor valuePropertyEditor = PropertyEditorResolver.findEditor(value.getClass());
+        Converter<Long> longConverter = getConverterRegistry().findConverter(Long.TYPE);
+        Converter valueConverter = getConverterRegistry().findConverter(value.getClass());
 
-        if (valuePropertyEditor == null) {
+        if (valueConverter == null) {
             throw new IllegalArgumentException("Cannot convert value [" +
                 value + "] of type [" +
                 value.getClass().getName() + "] to long");
         }
 
-        valuePropertyEditor.setValue(value);
-        longPropertyEditor.setAsText(valuePropertyEditor.getAsText());
-        return (Long) longPropertyEditor.getValue();
+        return longConverter.fromObject(valueConverter.toString(value));
     }
 }

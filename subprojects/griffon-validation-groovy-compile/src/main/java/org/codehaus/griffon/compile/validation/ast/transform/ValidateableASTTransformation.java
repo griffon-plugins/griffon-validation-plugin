@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,13 +68,13 @@ import static org.codehaus.groovy.ast.ClassHelper.STRING_TYPE;
 /**
  * @author Andres Almiray
  */
-@AnnotationHandlerFor(griffon.transform.Validateable.class)
+@AnnotationHandlerFor(griffon.transform.validation.Validateable.class)
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
 public class ValidateableASTTransformation extends AbstractASTTransformation implements AnnotationHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ValidateableASTTransformation.class);
     private static final ClassNode VALIDATEABLE_TYPE = makeClassSafe(Validateable.class);
     private static final ClassNode ABSTRACT_VALIDATEABLE_TYPE = makeClassSafe(AbstractValidateable.class);
-    private static final ClassNode VALIDATEABLE_ANNOTATION = makeClassSafe(griffon.transform.Validateable.class);
+    private static final ClassNode VALIDATEABLE_ANNOTATION = makeClassSafe(griffon.transform.validation.Validateable.class);
     private static final ClassNode ERRORS_TYPE = makeClassSafe(Errors.class);
     private static final ClassNode DEFAULT_ERRORS_TYPE = makeClassSafe(DefaultErrors.class);
     private static final ClassNode POST_CONSTRUCT_TYPE = makeClassSafe(PostConstruct.class);
@@ -89,6 +91,17 @@ public class ValidateableASTTransformation extends AbstractASTTransformation imp
     private static final String CONSTRAINTS_VALIDATOR_NAME = "this$constraintsValidator";
 
     /**
+     * Handles the bulk of the processing, mostly delegating to other methods.
+     *
+     * @param nodes  the ast nodes
+     * @param source the source unit for the nodes
+     */
+    public void visit(ASTNode[] nodes, SourceUnit source) {
+        checkNodesForAnnotationAndType(nodes[0], nodes[1]);
+        addValidateableToClass(source, (ClassNode) nodes[1]);
+    }
+
+    /**
      * Convenience method to see if an annotated node is {@code @Validateable}.
      *
      * @param node the node to check
@@ -101,17 +114,6 @@ public class ValidateableASTTransformation extends AbstractASTTransformation imp
             }
         }
         return false;
-    }
-
-    /**
-     * Handles the bulk of the processing, mostly delegating to other methods.
-     *
-     * @param nodes  the ast nodes
-     * @param source the source unit for the nodes
-     */
-    public void visit(ASTNode[] nodes, SourceUnit source) {
-        checkNodesForAnnotationAndType(nodes[0], nodes[1]);
-        addValidateableToClass(source, (ClassNode) nodes[1]);
     }
 
     public static void addValidateableToClass(SourceUnit source, ClassNode classNode) {

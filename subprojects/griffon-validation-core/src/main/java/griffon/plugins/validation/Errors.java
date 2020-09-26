@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,16 +17,16 @@
  */
 package griffon.plugins.validation;
 
-import griffon.core.Observable;
+import griffon.annotations.core.Nonnull;
+import griffon.annotations.core.Nullable;
+import griffon.core.properties.PropertySource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
  * @author Andres Almiray
  */
-public interface Errors extends Observable {
+public interface Errors extends PropertySource {
     String HAS_ERRORS_PROPERTY = "hasErrors";
     String ERROR_COUNT_PROPERTY = "errorCount";
 
@@ -66,7 +68,7 @@ public interface Errors extends Observable {
     String[] resolveMessageCodes(@Nonnull String code);
 
     @Nonnull
-    String[] resolveMessageCodes(@Nonnull String code, @Nonnull String field,@Nonnull Class<?> fieldType);
+    String[] resolveMessageCodes(@Nonnull String code, @Nonnull String field, @Nonnull Class<?> fieldType);
 
     void reject(@Nonnull String code, @Nonnull Object[] args, @Nonnull String defaultMessage);
 

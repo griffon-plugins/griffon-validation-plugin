@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,18 +17,21 @@
  */
 package org.codehaus.griffon.runtime.validation;
 
+import griffon.annotations.core.Nonnull;
+import griffon.annotations.core.Nullable;
 import griffon.exceptions.GriffonException;
 import griffon.plugins.validation.Errors;
 import griffon.plugins.validation.FieldObjectError;
 import griffon.plugins.validation.MessageCodesResolver;
 import griffon.plugins.validation.ObjectError;
 import griffon.util.GriffonClassUtils;
-import org.codehaus.griffon.runtime.core.AbstractObservable;
+import org.codehaus.griffon.runtime.core.properties.AbstractPropertySource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static griffon.core.GriffonExceptionHandler.sanitize;
@@ -38,12 +43,12 @@ import static java.util.Objects.requireNonNull;
 /**
  * @author Andres Almiray
  */
-public class DefaultErrors extends AbstractObservable implements Errors {
+public class DefaultErrors extends AbstractPropertySource implements Errors {
     private final Map<String, List<FieldObjectError>> fieldErrors = synchronizedMap(new LinkedHashMap<String, List<FieldObjectError>>());
     private final List<ObjectError> objectErrors = new CopyOnWriteArrayList<>();
-    private MessageCodesResolver messageCodesResolver = new DefaultMessageCodesResolver();
     private final String objectName;
     private final Class<?> objectClass;
+    private MessageCodesResolver messageCodesResolver = new DefaultMessageCodesResolver();
 
     public DefaultErrors(@Nonnull Class<?> objectClass) {
         this.objectClass = requireNonNull(objectClass, "Argument 'objectClass' must not be null");
@@ -80,7 +85,7 @@ public class DefaultErrors extends AbstractObservable implements Errors {
     @Nonnull
     public List<FieldObjectError> getFieldErrors(@Nonnull String field) {
         List<FieldObjectError> errors = fieldErrors.get(field);
-        return null != errors ? unmodifiableList(errors) : Collections.<FieldObjectError>emptyList();
+        return null != errors ? unmodifiableList(errors) : Collections.emptyList();
     }
 
     public int getFieldErrorCount(@Nonnull String field) {
@@ -285,7 +290,7 @@ public class DefaultErrors extends AbstractObservable implements Errors {
     private Class<?> getFieldType(String field) {
         try {
             return GriffonClassUtils.getPropertyDescriptor(objectClass, field).getPropertyType();
-        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (Exception e) {
             throw new GriffonException(sanitize(e));
         }
     }
